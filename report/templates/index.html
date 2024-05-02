@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard with Side Menus</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.0.2/echarts.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <div id="left-menu" class="side-menu">
+        <ul>
+            <li id="bar-chart">Bar Chart</li>
+            <li id="pie-chart">Pie Chart</li>
+            <li id="word-cloud">Word Cloud</li>
+        </ul>
+    </div>
+    <div id="main-content" style="width:calc(100% - 200px);height:600px;"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const mainContent = document.getElementById('main-content');
+        const myChart = echarts.init(mainContent);
+
+        async function fetchData(url) {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Fetching data failed with status ${response.status}`);
+            }
+            const data = await response.json();
+            console.log('Fetched data:', data);
+            return data;
+        }
+
+        function handleError(error) {
+            console.error('Error:', error);
+            alert('An error occurred while fetching data. Please try again later.');
+        }
+
+        function setChartOption(data, type) {
+            let option;
+            switch (type) {
+                case 'bar':
+                    let categories = [];
+                    let values = [];
+                    data.forEach(item => {
+                        categories.push(item[0]);
+                        values.push(item[1]);
+                    });
+                    option = {
+                        xAxis: {
+                            type: 'category',
+                            data: categories
+                        },
+                        yAxis: {
+                            type: 'value'
+                        },
+                        series: [{
+                            data: values,
+                            type: 'bar'
+                        }]
+                    };
+                    break;
+                case 'pie':
+                    option = {
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: '{a} <br/>{b}: {c} ({d}%)'
+                        },
+                        series: [{
+                            name: 'Access Source',
+                            type: 'pie',
+                            radius: '55%',
+                            data: data,
+                            emphasis: {
+                                itemStyle: {
+                                    shadowBlur: 10,
+                                    shadowOffsetX: 0,
+                                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                }
+                            }
+                        }]
+                    };
+                    break;
+                case 'wordCloud':
+                    const formattedData = data.map(key => ({
+                        name: key,
+                        value: data[key]
+                    }));
+                    option = {
+                        series: [{
+                            type: 'wordCloud',
+                            gridSize: 10,
+                            sizeRange: [12, 50],
+                            rotationRange: [-90, 90],
+                            shape: 'pentagon',
+                            drawOutOfBound: false,
+                            textStyle: {
+                                normal: {
+                                    color: function () {
+                                        return 'rgb(' + [
+                                            Math.round(Math.random() * 160),
+                                            Math.round(Math.random() * 160),
+                                            Math.round(Math.random() * 160)
+                                        ].join(',') + ')';
+                                    }
+                                },
+                                emphasis: {
+                                    shadowBlur: 10,
+                                    shadowColor: '#333'
+                                }
+                            },
+                            data: formattedData
+                        }]
+                    };
+                    break;
+            }
+            myChart.setOption(option);
+        }
+
+        function selectChart(type) {
+            mainContent.innerHTML = '';
+            let url;
+            switch (type) {
+                case 'bar':
+                    url = '/api/bar-data';
+                    break;
+                case 'pie':
+                    url = '/api/pie-data';
+                    break;
+                case 'wordCloud':
+                    url = '/api/word-cloud-data';
+                    break;
+            }
+            fetchData(url)
+                .then(data => setChartOption(data, type))
+                .catch(handleError);
+        }
+
+        document.getElementById('bar-chart').addEventListener('click', () => selectChart('bar'));
+        document.getElementById('pie-chart').addEventListener('click', () => selectChart('pie'));
+        document.getElementById('word-cloud').addEventListener('click', () => selectChart('wordCloud'));
+    });
+    </script>
+
+    <style>
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        box-sizing: border-box;
+    }
+
+    .side-menu {
+        width: 200px;
+        background-color: #f0f0f0;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        overflow: auto;
+    }
+
+    #main-content {
+        margin-left: 200px;
+        height: 600px;  /* Ensure there's enough height */
+        overflow: auto;
+    }
+    </style>
+</body>
+</html>

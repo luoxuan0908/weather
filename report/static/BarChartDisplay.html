@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bar Chart Example</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.0.2/echarts.min.js"></script>
+</head>
+<body>
+    <div id="barChart" style="width: 600px; height: 400px;"></div>
+    <script>
+        // Initialize the chart inside the DOM element with id 'barChart'
+        const chartDom = document.getElementById('barChart');
+        const myChart = echarts.init(chartDom);
+
+        // Function to fetch data from the server
+        async function fetchData() {
+            try {
+                const response = await fetch('/api/bar-data');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Fetching data failed:', error);
+                alert('Failed to fetch data for the chart.');
+            }
+        }
+
+        // Function to configure and set options for the chart
+        async function setChartOptions() {
+            const data = await fetchData();
+            if (!data) return;
+
+            let categories = data.map(item => item[0]);
+            let values = data.map(item => item[1]);
+
+            const option = {
+                title: {
+                    text: 'Bar Chart Example',
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    data: categories
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [{
+                    data: values,
+                    type: 'bar',
+                    showBackground: true,
+                    backgroundStyle: {
+                        color: 'rgba(220, 220, 220, 0.8)'
+                    }
+                }]
+            };
+
+            myChart.setOption(option);
+        }
+
+        setChartOptions();
+    </script>
+</body>
+</html>

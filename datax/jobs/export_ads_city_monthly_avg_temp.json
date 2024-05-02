@@ -1,0 +1,82 @@
+{
+    "job": {
+        "setting": {
+            "speed": {
+                "channel": 1
+            }
+        },
+        "content": [
+            {
+                "reader": {
+                    "name": "hdfsreader",
+                    "parameter": {
+                        "defaultFS": "hdfs://127.0.0.1:8020",
+                        "path": "/user/hive/warehouse/weather.db/ads_city_monthly_avg_temp/ds=20240428",
+                        "fileType": "text",
+                        "encoding": "UTF-8",
+                        "fieldDelimiter": "&",
+                        "column": [
+                            {
+                                "index": 0,
+                                "type": "string"
+                            },
+                            {
+                                "index": 1,
+                                "type": "string"
+                            },
+                            {
+                                "index": 2,
+                                "type": "long"
+                            },
+                            {
+                                "index": 3,
+                                "type": "double"
+                            },
+                            {
+                                "index": 4,
+                                "type": "double"
+                            },
+                            {
+                                "index": 5,
+                                "type": "date"
+                            },
+                            {
+                                "index": 6,
+                                "type": "date"
+                           }
+                        ]
+                    }
+                },
+                "writer": {
+                    "name": "mysqlwriter",
+                    "parameter": {
+                        "writeMode": "insert",
+                        "username": "root",
+                        "password": "123456",
+                        "column": [
+                            "prvn",
+                            "pftn",
+                            "day_of_month",
+                            "avg_max_temp",
+                            "avg_min_temp",
+                            "created_at",
+                            "updated_at"
+                        ],
+                        "preSql": [
+                            "delete from ads_city_monthly_avg_temp"
+                        ],
+                        "connection": [
+                            {
+                                "jdbcUrl": "jdbc:mysql://127.0.0.1:3306/weather?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&autoReconnect=true&allowPublicKeyRetrieval=true",
+                                "table": [
+                                    "ads_city_monthly_avg_temp"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    }
+}
+

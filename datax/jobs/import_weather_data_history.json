@@ -1,0 +1,56 @@
+{
+    "job": {
+        "setting": {
+            "speed": {
+                "channel": 5
+            }
+        },
+        "content": [
+            {
+                "reader": {
+                    "name": "mysqlreader",
+                    "parameter": {
+                        "username": "root",
+                        "password": "123456",
+                        "connection": [
+                            {
+                                "querySql": [
+                                    "SELECT * FROM weather_data_history"
+                                ],
+                                "jdbcUrl": [
+                                    "jdbc:mysql://101.126.4.10:3306/weather?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&autoReconnect=true&allowPublicKeyRetrieval=true"
+                                ]
+                            }
+                        ],
+                        "driver": "com.mysql.cj.jdbc.Driver"
+                    }
+                },
+                "writer": {
+                    "name": "hdfswriter",
+                    "parameter": {
+                        "defaultFS": "hdfs://127.0.0.1:8020",
+                        "fileType": "text",
+                        "path": "/user/hive/warehouse/weather.db/weather_data_history",
+                        "fileName": "weather_data_history",
+                        "writeMode": "append",
+                        "fieldDelimiter": ",",
+                        "column": [
+                            {"name": "ctnb", "type": "string"},
+                            {"name": "prvn", "type": "string"},
+                            {"name": "pftn", "type": "string"},
+                            {"name": "ctn", "type": "string"},
+                            {"name": "date", "type": "string"},
+                            {"name": "dywek", "type": "string"},
+                            {"name": "htmpt", "type": "string"},
+                            {"name": "ltmpt", "type": "string"},
+                            {"name": "wthcdt", "type": "string"},
+                            {"name": "wnddrt", "type": "string"},
+                            {"name": "wndfrc", "type": "string"}
+                        ]
+                    }
+                }
+            }
+        ]
+    }
+}
+

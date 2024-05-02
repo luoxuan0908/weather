@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard with Side Menus</title>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+
+
+
+
+
+</head>
+<div id="app">
+    <div id="left-menu" class="side-menu">
+        <ul>
+            <li @click="selectChart('bar')">柱状图</li>
+            <li @click="selectChart('pie')">饼图</li>
+            <li @click="selectChart('wordCloud')">词云</li>
+        </ul>
+    </div>
+    <div id="main-content" ref="mainContent"></div>
+</div>
+
+</body>
+<script>
+new Vue({
+    el: '#app',
+    data() {
+        return {
+            chartInstance: null
+        };
+    },
+    mounted() {
+        this.chartInstance = echarts.init(this.$refs.mainContent);
+    },
+    methods: {
+        async fetchData(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`获取数据失败，状态码为 ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                this.handleError(error);
+            }
+        },
+        handleError(error) {
+            console.error('错误:', error);
+            alert('获取数据时发生错误，请稍后再试。');
+        },
+        setChartOption(data, type) {
+            let option;
+            // 根据'type'定义选项（类似于你现有的switch语句）
+            // 使用'this.chartInstance.setOption(option)'来应用选项
+        },
+        selectChart(type) {
+            let url;
+            switch (type) {
+                case 'bar':
+                    url = '/api/bar-data';
+                    break;
+                case 'pie':
+                    url = '/api/pie-data';
+                    break;
+                case 'wordCloud':
+                    url = '/api/weather';
+                    break;
+            }
+            this.fetchData(url)
+                .then(data => this.setChartOption(data, type))
+                .catch(this.handleError);
+        }
+    }
+});
+</script>
+
+<style>
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.side-menu {
+    width: 200px;
+    background-color: #f0f0f0;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    overflow: auto;
+}
+
+#left-menu {
+    left: 0;
+}
+
+#right-menu {
+    right: 0;
+}
+
+#main-content {
+    margin-left: 200px; /* Same as the width of the left menu */
+    margin-right: 200px; /* Same as the width of the right menu */
+    height: 100%;
+    overflow: auto;
+}
+
+</style>
+
+</html>
